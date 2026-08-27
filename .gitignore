@@ -1,0 +1,23 @@
+# 密钥文件（绝不能上传）
+工具/密钥/
+*.key
+*.pem
+*.env
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 编辑器配置
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# 敏感配置
+*.local
