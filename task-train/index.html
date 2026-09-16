@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FF6B35">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="狗不理任务小火车">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>狗不理の每日任务小火车</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --primary-light: #FFB088;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+            --bg: #FFF8F0;
+            --card: #FFFFFF;
+            --text: #333333;
+            --text-light: #888888;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, var(--primary), #FF8C5A);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(255,107,53,0.3);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .header .date {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 统计卡片 */
+        .stats-card {
+            display: flex;
+            justify-content: space-around;
+            background: var(--card);
+            margin: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* 任务列表 */
+        .task-list {
+            margin: 0 15px;
+        }
+
+        .task-item {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .task-item.active {
+            border-left: 4px solid var(--primary);
+            background: linear-gradient(90deg, #FFF5EE, var(--card));
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            background: #F5F5F5;
+        }
+
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-name {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .task-time {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .task-timer {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .task-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .task-btn:active {
+            transform: scale(0.9);
+        }
+
+        .btn-start {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-pause {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-stop {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-done {
+            background: var(--success);
+            color: white;
+        }
+
+        /* 休息提醒 */
+        .rest-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .rest-alert.show {
+            display: flex;
+        }
+
+        .rest-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+        }
+
+        .rest-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .rest-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .rest-desc {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 25px;
+        }
+
+        .rest-btn {
+            padding: 12px 40px;
+            border-radius: 25px;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin: 0 8px;
+        }
+
+        .rest-btn-continue {
+            background: var(--primary);
+            color: white;
+        }
+
+        .rest-btn-skip {
+            background: #EEE;
+            color: var(--text);
+        }
+
+        /* 编辑弹窗 */
+        .edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 500;
+        }
+
+        .edit-modal.show {
+            display: flex;
+        }
+
+        .edit-content {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .edit-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .edit-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .edit-label {
+            width: 80px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .edit-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #DDD;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .edit-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .edit-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .edit-btn-cancel {
+            background: #EEE;
+            color: var(--text);
+        }
+
+        .edit-btn-save {
+            background: var(--primary);
+            color: white;
+        }
+
+        .edit-btn-save:disabled {
+            background: #CCC;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 5px 15px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+
+        /* 页面切换 */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* 饼图页面 */
+        .chart-container {
+            margin: 15px;
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .chart-legend {
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .legend-text {
+            flex: 1;
+        }
+
+        .legend-value {
+            font-weight: bold;
+        }
+
+        /* 添加任务按钮 */
+        .add-task-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 28px;
+            box-shadow: 0 4px 15px rgba(255,107,53,0.4);
+            cursor: pointer;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-task-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        /* 加载提示 */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <div class="header">
+        <h1>🚂 狗不理の每日任务小火车</h1>
+        <div class="date" id="currentDate"></div>
+    </div>
+
+    <!-- 任务页面 -->
+    <div class="page active" id="taskPage">
+        <!-- 统计卡片 -->
+        <div class="stats-card">
+            <div class="stat-item">
+                <div class="stat-value" id="completedCount">0</div>
+                <div class="stat-label">已完成</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalCount">9</div>
+                <div class="stat-label">总任务</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalTime">0:00</div>
+                <div class="stat-label">总用时</div>
+            </div>
+        </div>
+
+        <!-- 任务列表 -->
+        <div class="task-list" id="taskList"></div>
+    </div>
+
+    <!-- 统计页面 -->
+    <div class="page" id="statsPage">
+        <div class="chart-container">
+            <div class="chart-title">📊 今日任务完成情况</div>
+            <canvas class="chart-canvas" id="pieChart" width="300" height="300"></canvas>
+            <div class="chart-legend" id="chartLegend"></div>
+        </div>
+    </div>
+
+    <!-- 添加任务按钮 -->
+    <button class="add-task-btn" id="addTaskBtn">+</button>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-page="taskPage">
+            <div class="nav-icon">📋</div>
+            <div>任务</div>
+        </div>
+        <div class="nav-item" data-page="statsPage">
+            <div class="nav-icon">📊</div>
+            <div>统计</div>
+        </div>
+    </div>
+
+    <!-- 休息提醒弹窗 -->
+    <div class="rest-alert" id="restAlert">
+        <div class="rest-content">
+            <div class="rest-icon">😴</div>
+            <div class="rest-title">该休息一下啦！</div>
+            <div class="rest-desc">已经连续学习30分钟了，起来活动活动吧～</div>
+            <button class="rest-btn rest-btn-continue" onclick="continueWork()">继续学习</button>
+            <button class="rest-btn rest-btn-skip" onclick="skipRest()">休息5分钟</button>
+        </div>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div class="edit-modal" id="editModal">
+        <div class="edit-content">
+            <div class="edit-title">修改完成时间</div>
+            <div class="edit-row">
+                <div class="edit-label">任务</div>
+                <div class="edit-input" id="editTaskName" style="background:#F5F5F5;border:none;"></div>
+            </div>
+            <div class="edit-row">
+                <div class="edit-label">时长</div>
+                <input class="edit-input" type="number" id="editMinutes" min="0" max="180" placeholder="分钟">
+                <span style="margin:0 5px;">:</span>
+                <input class="edit-input" type="number" id="editSeconds" min="0" max="59" placeholder="秒">
+            </div>
+            <div class="edit-btn-group">
+                <button class="edit-btn edit-btn-cancel" onclick="closeEditModal()">取消</button>
+                <button class="edit-btn edit-btn-save" id="editSaveBtn" onclick="saveEdit()">保存（仅可修改一次）</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div class="toast" id="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
