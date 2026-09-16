@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的工作台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .emoji { font-size: 60px; margin-bottom: 20px; }
+        h1 { font-size: 24px; margin-bottom: 10px; color: #333; }
+        p { color: #666; margin-bottom: 30px; font-size: 14px; }
+        .link {
+            display: block;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .link:active { transform: scale(0.98); }
+        .link-primary {
+            background: linear-gradient(135deg, #FF6B35, #FF8C5A);
+            color: white;
+        }
+        .link-secondary {
+            background: #F5F5F5;
+            color: #333;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emoji">🚀</div>
+        <h1>我的工作台</h1>
+        <p>狗不理の每日任务小火车</p>
+        
+        <a href="task-train/" class="link link-primary">
+            🚂 打开任务小火车
+        </a>
+        
+        <a href="https://github.com/houge123141/workspace" class="link link-secondary" target="_blank">
+            📂 查看 GitHub 仓库
+        </a>
+        
+        <div class="footer">
+            Made with ❤️ by houge123141
+        </div>
+    </div>
+</body>
+</html>
